@@ -1,0 +1,45 @@
+1. 显示数据库
+SHOW DATABASES;
+-- MySQL注释是"--";
+
+2.数据库的创建
+CREATE DATABASE [IF NOT EXISTS] 数据库名字 [可选项 [,
+create_specification] ...]
+可选项:
+ [DEFAULT] CHARACTER SET charset_name
+ [DEFAULT] COLLATE collation_name
+
+说明：
+MySQL的utf8编码不是真正的utf8，没有包含某些复杂的中文字符。MySQL真正的utf8是使用utf8mb4，建议大家都使用utf8mb4
+大写的表示关键字
+[] 是可选项
+CHARACTER SET: 指定数据库采用的字符集
+COLLATE: 指定数据库字符集的校验规则
+//如果系统没有 db_test 的数据库，则创建一个使用utf8mb4字符集的 db_test 数据库，如果有则不创建
+CREATE DATABASE IF NOT EXISTS db_test CHARACTER SET utf8mbs;
+
+3.使用数据库
+use 数据库名;
+
+4.删除数据库
+DROP DATABASE [IF EXISTS] db_name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
