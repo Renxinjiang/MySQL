@@ -1,0 +1,25 @@
+1.数值类型
+分为整型和浮点型
+
+数据类型 大小 说明 对应java类型
+BIT[ (M) ] M指定位数，默认为1  二进制数，M范围从1到64， 存储数值范围从0到2^M-1  常用Boolean 对应BIT，此时 默认是1位，即只能存0和1
+TINYINT 1字节   Byte
+SMALLINT 2字节   Short
+INT 4字节   Integer
+BIGINT 8字节   Long
+ FLOAT(M, D)  4字节 单精度，M指定长度，D指定 小数位数。会发生精度丢失  Float
+DOUBLE(M,D)  8字节     Double
+DECIMAL(M,D)（用于金额计算类） M/D最大值+2 双精度，M指定长度，D表示 小数点位数。精确数值  BigDecimal
+NUMERIC(M,D) M/D最大值+2  和DECIMAL一样  BigDecimal
+
+2.字符串类型
+数据类型 大小 说明 对应java类型
+VARCHAR (SIZE) 0-65,535 字节 可变长度字符串 String
+TEXT 0-65,535 字节 长文本数据 String
+MEDIUMTEXT 0-16 777 215 字节 中等长度文本数据 String
+BLOB 0-65,535 字节 二进制形式的长文本数据 byte[]
+
+3.日期类型
+ 数据类型 大小  说明  对应java类型
+ DATETIME 8字节  范围从1000到9999年，不会进行时区的检索及转换。  java.util.Date 、java.sql.Timestamp
+ TIMESTAMP 4字节  范围从1970到2038年，自动检索当前时区并进行转换。  java.util.Date 、java.sql.Timestamp
