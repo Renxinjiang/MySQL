@@ -1,0 +1,31 @@
+需要操作数据库中的表时，需要先使用该数据库
+
+1.查看表结构
+desc 表名;
+
+2.创建表
+可以使用comment增加字段说明。
+create table stu_test (
+   id int,
+   name varchar(20) comment '姓名'
+,
+   password varchar(50) comment '密码'
+,
+   age int,
+   sex varchar(1),
+   birthday timestamp,
+   amout decimal(13,2),
+   resume text
+);
+
+3.删除表
+DROP [TEMPORARY] TABLE [IF EXISTS] tbl_name [, tbl_name] ...
+
+
+
+
+
+
+
+
+
