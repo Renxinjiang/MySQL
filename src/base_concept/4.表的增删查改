@@ -1,0 +1,218 @@
+1、插入
+INSERT [INTO] table_name
+ [(column [, column] ...)]
+
+VALUES (value_list) [, (value_list)] ...
+
+value_list: value, [, value] ...
+
+单行+全列插入
+-- 插入两条记录，value_list 数量必须和定义表的列的数量及顺序一致
+INSERT INTO student VALUES (100, 10000, '唐三藏', NULL);
+INSERT INTO student VALUES (101, 10001, '孙悟空', '11111');
+
+多行+指定列插入
+-- 插入两条记录，value_list 数量必须和指定列数量及顺序一致
+INSERT INTO student (id, sn, name) VALUES
+(102, 20001, '曹孟德'),
+(103, 20002, '孙仲谋');
+
+2、查询
+2.1 全列查询
+-- 通常情况下不建议使用 * 进行全列查询
+-- 1. 查询的列越多，意味着需要传输的数据量越大；
+-- 2. 可能会影响到索引的使用。
+SELECT * FROM 表名;
+
+2.2 指定列查询
+-- 指定列的顺序不需要按定义表的顺序来
+SELECT 列名，列名... FROM 表名;
+
+2.3 查询字段为表达式
+-- 表达式不包含字段
+SELECT id, name, 10 FROM exam_result;
+-- 表达式包含一个字段
+SELECT id, name, english + 10 FROM exam_result;
+-- 表达式包含多个字段
+SELECT id, name, chinese + math + english FROM exam_result;
+
+2.4 别名
+SELECT column [AS] alias_name [...] FROM table_name;
+
+2.5 去重：DISTINCT
+-- 去重结果
+SELECT DISTINCT 列名 FROM 表名;
+
+2.6 排序：ORDER BY
+-- ASC 为升序（从小到大）
+-- DESC 为降序（从大到小）
+-- 默认为 ASC
+SELECT ... FROM table_name [WHERE ...]
+ORDER BY column [ASC|DESC], [...];
+
+1. 没有 ORDER BY 子句的查询，返回的顺序是未定义的，永远不要依赖这个顺序
+2. NULL 数据排序，视为比任何值都小，升序出现在最上面，降序出现在最下面
+3. 使用表达式及别名进行排序
+4. 可以对多个字段进行排序，排序优先级随书写顺序
+-- 查询同学及总分，由高到低
+SELECT name, chinese + english + math FROM exam_result
+ORDER BY chinese + english + math DESC;
+SELECT name, chinese + english + math total FROM exam_result
+ORDER BY total DESC;
+
+-- 查询同学各门成绩，依次按 数学降序，英语升序，语文升序的方式显示
+SELECT name, math, english, chinese FROM exam_result
+ORDER BY math DESC,english,chinse;
+
+2.7 条件查询：where
+比较运算符：
+运算符 说明
+>, >=, <, <= 大于，大于等于，小于，小于等于
+= 等于，NULL 不安全，例如 NULL = NULL 的结果是 NULL
+<=> 等于，NULL 安全，例如 NULL <=> NULL 的结果是 TRUE(1)
+!=, <> 不等于
+BETWEEN a0 AND a1  范围匹配，[a0, a1]，如果 a0 <= value <= a1 ，返回 TRUE(1)
+IN (option, ...) 如果是 option 中的任意一个，返回 TRUE(1)
+IS NULL 是 NULL
+IS NOT NULL 不是 NULL
+ LIKE 模糊匹配。% 表示任意多个（包括 0 个）任意字符；_ 表示任意一个字 符
+逻辑运算符：
+运算符 说明
+AND 多个条件必须都为 TRUE(1) ，结果才是 TRUE(1)
+OR 任意一个条件为 TRUE(1), 结果为 TRUE(1)
+NOT 条件为 TRUE(1) ，结果为 FALSE(0)
+注意：
+1. WHERE条件可以使用表达式，但不能使用别名。
+2. AND的优先级高于OR，在同时使用时，需要使用小括号()包裹优先执行的部分
+-- 示例：
+1.基本查询
+-- 查询英语不及格的同学及英语成绩 ( < 60 )
+SELECT name, english FROM exam_result WHERE english < 60;
+-- 查询语文成绩好于英语成绩的同学
+SELECT name, chinese, english FROM exam_result WHERE chinese > english;
+-- 查询总分在 200 分以下的同学
+SELECT name, chinese + math + english 总分 FROM exam_result
+WHERE chinese + math + english < 200;
+
+2.AND与OR
+-- 查询语文成绩大于80分，且英语成绩大于80分的同学
+SELECT * FROM exam_result WHERE chinese > 80 and english > 80;
+-- 查询语文成绩大于80分，或英语成绩大于80分的同学
+SELECT * FROM exam_result WHERE chinese > 80 or english > 80;
+-- 观察AND 和 OR 的优先级：
+SELECT * FROM exam_result WHERE chinese > 80 or math>70 and english > 70;
+SELECT * FROM exam_result WHERE (chinese > 80 or math>70) and english > 70;
+
+3.范围查询
+-- 1）BETWEEN...AND...
+-- 查询语文成绩在 [80, 90] 分的同学及语文成绩
+SELECT name, chinese FROM exam_result WHERE chinese BETWEEN 80 AND 90;
+-- 使用 AND 也可以实现
+SELECT name, chinese FROM exam_result WHERE chinese >= 80 AND chinese <= 90;
+
+-- 2）IN
+-- 查询数学成绩是 58 或者 59 或者 98 或者 99 分的同学及数学成绩
+SELECT name, math FROM exam_result WHERE math IN (58, 59, 98, 99);
+-- 使用 OR 也可以实现
+SELECT name, math FROM exam_result WHERE math = 58 OR math = 59 OR math = 98 OR math = 99;
+
+4.模糊查询LIKE
+-- % 匹配任意多个（包括 0 个）字符
+SELECT name FROM exam_result WHERE name LIKE '孙%';-- 匹配到孙悟空、孙权
+-- _ 匹配严格的一个任意字符
+SELECT name FROM exam_result WHERE name LIKE '孙_';-- 匹配到孙权
+
+5.NULL的查询：IS[NOT]NULL
+-- 查询 qq_mail 已知的同学姓名
+SELECT name, qq_mail FROM student WHERE qq_mail IS NOT NULL;
+-- 查询 qq_mail 未知的同学姓名
+SELECT name, qq_mail FROM student WHERE qq_mail IS NULL;
+
+2.8 分页查询：LIMIT
+-- 起始下标为 0
+-- 从 0 开始，筛选 n 条结果
+SELECT ... FROM table_name [WHERE ...] [ORDER BY ...] LIMIT n;
+-- 从 s 开始，筛选 n 条结果
+SELECT ... FROM table_name [WHERE ...] [ORDER BY ...] LIMIT s, n;
+-- 从 s 开始，筛选 n 条结果，比第二种用法更明确，建议使用
+SELECT ... FROM table_name [WHERE ...] [ORDER BY ...] LIMIT n OFFSET s;
+
+
+案例：按 id 进行分页，每页 3 条记录，分别显示 第 1、2、3 页
+-- 第 1 页
+SELECT id, name, math, english, chinese FROM exam_result ORDER BY id LIMIT 3 OFFSET 0;
+-- 第 2 页
+SELECT id, name, math, english, chinese FROM exam_result ORDER BY id LIMIT 3 OFFSET 3;
+-- 第 3 页，如果结果不足 3 个，不会有影响
+SELECT id, name, math, english, chinese FROM exam_result ORDER BY id LIMIT 3 OFFSET 6;
+
+
+3、更新：UPDATE
+UPDATE table_name SET column = expr [, column = expr ...]
+[WHERE ...] [ORDER BY ...] [LIMIT ...]
+
+示例：
+-- 将孙悟空同学的数学成绩变更为 80 分
+UPDATE exam_result SET math = 80 WHERE name = '孙悟空';
+-- 将曹孟德同学的数学成绩变更为 60 分，语文成绩变更为 70 分
+UPDATE exam_result SET math = 60, chinese = 70 WHERE name = '曹孟德';
+-- 将总成绩倒数前三的 3 位同学的数学成绩加上 30 分
+UPDATE exam_result SET math = math + 30 ORDER BY chinese + math + english LIMIT 3;
+-- 将所有同学的语文成绩更新为原来的 2 倍
+UPDATE exam_result SET chinese = chinese * 2;
+
+update一定记得使用where啊姐妹！！！
+4、删除（Delete）
+DELETE FROM  table_name [WHERE ...] [ORDER BY ...] [LIMIT ...]
+
+示例：
+-- 删除孙悟空同学的考试成绩
+DELETE FROM exam_result WHERE name = '孙悟空';
+-- 删除整张表数据
+-- 准备测试表
+DROP TABLE IF EXISTS for_delete;
+CREATE TABLE for_delete (
+id INT,
+name VARCHAR(20)
+);
+-- 插入测试数据
+INSERT INTO for_delete (name) VALUES ('A'), ('B'), ('C');
+-- 删除整表数据
+DELETE FROM for_delete;
+
+姐妹，同上，记得where哈，不然就干彻底一点删库跑路！
+
+一个略微敷衍的小结：
+1.增
+-- 单行插入
+insert into 表(字段1, ..., 字段N) values (value1, ..., value N);
+-- 多行插入
+insert into 表(字段1, ..., 字段N) values
+(value1, ...),
+(value2, ...),
+(value3, ...);
+
+2.删
+delete from 表 where 条件
+
+3.改
+update 表 set 字段1=value1, 字段2=value2... where 条件
+
+4.查
+-- 全列查询
+select * from 表
+-- 指定列查询
+select 字段1,字段2... from 表
+-- 查询表达式字段
+select 字段1+100,字段2+字段3 from 表
+-- 别名
+select 字段1 别名1, 字段2 别名2 from 表
+-- 去重DISTINCT
+select distinct 字段 from 表
+-- 排序ORDER BY
+select * from 表 order by 排序字段
+-- 条件查询WHERE：
+-- (1)比较运算符 (2)BETWEEN ... AND ... (3)IN (4)IS NULL (5)LIKE (6)AND (7)OR (8)NOT
+select * from 表 where 条件
+
+
